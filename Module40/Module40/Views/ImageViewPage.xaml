@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Module40.Views.ImageViewPage"
+             Title="Просмотр изображения"
+             BackgroundColor="Black">
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <!-- Изображение во весь экран -->
+            <ScrollView Grid.Row="0" 
+                       HorizontalScrollBarVisibility="Never"
+                       VerticalScrollBarVisibility="Never">
+                <Image x:Name="FullScreenImage"
+                       Source="{Binding ImagePath}"
+                       Aspect="AspectFit"
+                       BackgroundColor="Black"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </ScrollView>
+            
+            <!-- Информационная панель внизу -->
+            <StackLayout Grid.Row="1" 
+                        BackgroundColor="#80000000"
+                        Padding="15,10"
+                        Spacing="5">
+                <Label Text="{Binding FileName}"
+                       TextColor="White"
+                       FontSize="Large"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+                <Label Text="{Binding FormattedDate}"
+                       TextColor="LightGray"
+                       FontSize="Medium"
+                       HorizontalOptions="Center" />
+            </StackLayout>
+            
+            <!-- Кнопка закрытия -->
+            <Button Grid.Row="0"
+                    Text="✕"
+                    FontSize="24"
+                    TextColor="White"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="End"
+                    VerticalOptions="Start"
+                    Margin="15"
+                    HeightRequest="50"
+                    WidthRequest="50"
+                    Command="{Binding CloseCommand}" />
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

@@ -7,5 +7,6 @@ namespace Module40.Services
         Task<bool> CheckAndRequestStoragePermissionAsync();
         bool CanRequestPermission();
         void OpenAppSettings();
+        Task<bool> CheckWritePermissionAsync();
     }
 }

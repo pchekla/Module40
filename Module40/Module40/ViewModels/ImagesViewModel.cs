@@ -11,10 +11,45 @@ using System.Collections.Generic;
 
 namespace Module40.ViewModels
 {
-    public class ImageInfo
+    public class ImageInfo : INotifyPropertyChanged
     {
         public string FilePath { get; set; }
         public string FileName { get; set; }
+        
+        private bool _isSelected;
+        public bool IsSelected 
+        { 
+            get => _isSelected; 
+            set 
+            { 
+                _isSelected = value; 
+                OnPropertyChanged(); 
+            } 
+        }
+
+        public DateTime CreatedDate 
+        { 
+            get 
+            { 
+                try 
+                { 
+                    return File.GetCreationTime(FilePath); 
+                } 
+                catch 
+                { 
+                    return DateTime.Now; 
+                } 
+            } 
+        }
+
+        public string FormattedDate => CreatedDate.ToString("dd.MM.yyyy HH:mm");
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     public class ImagesViewModel : INotifyPropertyChanged
@@ -45,17 +80,198 @@ namespace Module40.ViewModels
             } 
         }
 
+        private bool _hasSelectedImages;
+        public bool HasSelectedImages 
+        { 
+            get => _hasSelectedImages; 
+            set 
+            { 
+                _hasSelectedImages = value; 
+                OnPropertyChanged(); 
+            } 
+        }
+
         public bool PermissionDenied { get; set; }
         public Command RequestPermissionCommand { get; set; }
         public bool ShowOpenSettings { get; set; }
         public Command OpenSettingsCommand { get; set; }
+        public Command<ImageInfo> SelectImageCommand { get; set; }
+        public Command OpenSelectedImageCommand { get; set; }
+        public Command DeleteSelectedImagesCommand { get; set; }
 
         public ImagesViewModel()
         {
             Images = new ObservableCollection<ImageInfo>();
             RequestPermissionCommand = new Command(RequestPermission);
             OpenSettingsCommand = new Command(OpenSettings);
+            SelectImageCommand = new Command<ImageInfo>(OnSelectImage);
+            OpenSelectedImageCommand = new Command(OnOpenSelectedImage, () => HasSelectedImages);
+            DeleteSelectedImagesCommand = new Command(OnDeleteSelectedImages, () => HasSelectedImages);
             RequestPermissionAndLoadImages();
+        }
+
+        private void OnSelectImage(ImageInfo imageInfo)
+        {
+            if (imageInfo == null) return;
+
+            // Снимаем выделение с других изображений (одиночный выбор)
+            foreach (var img in Images)
+            {
+                if (img != imageInfo)
+                    img.IsSelected = false;
+            }
+
+            // Переключаем выделение текущего изображения
+            imageInfo.IsSelected = !imageInfo.IsSelected;
+            
+            UpdateSelectionState();
+        }
+
+        private void UpdateSelectionState()
+        {
+            HasSelectedImages = Images.Any(i => i.IsSelected);
+            ((Command)OpenSelectedImageCommand).ChangeCanExecute();
+            ((Command)DeleteSelectedImagesCommand).ChangeCanExecute();
+        }
+
+        private async void OnOpenSelectedImage()
+        {
+            var selectedImage = Images.FirstOrDefault(i => i.IsSelected);
+            if (selectedImage != null)
+            {
+                // Переходим на страницу просмотра изображения
+                await Application.Current.MainPage.Navigation.PushAsync(
+                    new Views.ImageViewPage(selectedImage));
+            }
+        }
+
+        private async void OnDeleteSelectedImages()
+        {
+            var selectedImages = Images.Where(i => i.IsSelected).ToList();
+            if (!selectedImages.Any()) return;
+
+            // Сначала проверяем разрешения на запись
+            var permissionService = DependencyService.Get<IPermissionService>();
+            var hasWritePermission = await permissionService.CheckWritePermissionAsync();
+            
+            if (!hasWritePermission)
+            {
+                var requestResult = await Application.Current.MainPage.DisplayAlert(
+                    "Нужны разрешения",
+                    "Для удаления файлов необходимо разрешение на запись. Предоставить разрешение?",
+                    "Да", "Отмена");
+
+                if (requestResult)
+                {
+                    // Запрашиваем разрешения заново
+                    await permissionService.CheckAndRequestStoragePermissionAsync();
+                    
+                    // Проверяем еще раз
+                    hasWritePermission = await permissionService.CheckWritePermissionAsync();
+                    
+                    if (!hasWritePermission)
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Ошибка",
+                            "Без разрешения на запись удаление файлов невозможно. Откройте настройки приложения и предоставьте необходимые разрешения.",
+                            "OK");
+                        return;
+                    }
+                }
+                else
+                {
+                    return; // Пользователь отказался предоставлять разрешения
+                }
+            }
+
+            var imagesToDelete = selectedImages.Count;
+            var result = await Application.Current.MainPage.DisplayAlert(
+                "Подтверждение удаления",
+                $"Вы действительно хотите удалить {imagesToDelete} изображений? Файлы будут удалены навсегда.",
+                "Удалить", "Отмена");
+
+            if (result)
+            {
+                var deletedCount = 0;
+                var failedCount = 0;
+                var failedFiles = new List<string>();
+
+                foreach (var image in selectedImages)
+                {
+                    try
+                    {
+                        // Удаляем файл из файловой системы
+                        if (File.Exists(image.FilePath))
+                        {
+                            File.Delete(image.FilePath);
+                            System.Diagnostics.Debug.WriteLine($"Успешно удален файл: {image.FilePath}");
+                            
+                            // Проверяем, действительно ли файл удален
+                            if (!File.Exists(image.FilePath))
+                            {
+                                // Удаляем из коллекции только если файл действительно удален
+                                Images.Remove(image);
+                                deletedCount++;
+                            }
+                            else
+                            {
+                                failedCount++;
+                                failedFiles.Add(image.FileName);
+                                System.Diagnostics.Debug.WriteLine($"Файл не был удален: {image.FilePath}");
+                            }
+                        }
+                        else
+                        {
+                            // Файл не существует, удаляем из коллекции
+                            Images.Remove(image);
+                            deletedCount++;
+                            System.Diagnostics.Debug.WriteLine($"Файл не найден, удален из списка: {image.FilePath}");
+                        }
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        failedCount++;
+                        failedFiles.Add(image.FileName);
+                        System.Diagnostics.Debug.WriteLine($"Нет прав на удаление файла {image.FilePath}: {ex.Message}");
+                    }
+                    catch (IOException ex)
+                    {
+                        failedCount++;
+                        failedFiles.Add(image.FileName);
+                        System.Diagnostics.Debug.WriteLine($"Ошибка ввода-вывода при удалении {image.FilePath}: {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        failedCount++;
+                        failedFiles.Add(image.FileName);
+                        System.Diagnostics.Debug.WriteLine($"Неожиданная ошибка при удалении {image.FilePath}: {ex.Message}");
+                    }
+                }
+
+                UpdateSelectionState();
+                
+                // Показываем результат операции
+                if (failedCount == 0)
+                {
+                    StatusMessage = $"Успешно удалено файлов: {deletedCount}";
+                }
+                else if (deletedCount > 0)
+                {
+                    StatusMessage = $"Удалено: {deletedCount}, не удалось: {failedCount}";
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Частичное удаление",
+                        $"Удалено файлов: {deletedCount}\nНе удалось удалить: {failedCount}\n\nПроблемные файлы:\n{string.Join("\n", failedFiles.Take(5))}{(failedFiles.Count > 5 ? "\n..." : "")}",
+                        "OK");
+                }
+                else
+                {
+                    StatusMessage = $"Не удалось удалить ни одного файла";
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Ошибка удаления",
+                        $"Не удалось удалить ни одного файла.\n\nВозможные причины:\n- Нет разрешений на запись\n- Файлы заблокированы другим приложением\n- Файлы находятся в системной папке",
+                        "OK");
+                }
+            }
         }
 
         private async void RequestPermissionAndLoadImages()
@@ -164,37 +380,13 @@ namespace Module40.ViewModels
                     }
                 }
 
-                StatusMessage = foundImages > 0 ? $"Найдено изображений: {foundImages}" : "Изображения не найдены в указанных папках";
+                StatusMessage = foundImages > 0 ? $"Найдено изображений: {foundImages}" : "Изображения не найдены";
                 System.Diagnostics.Debug.WriteLine($"Всего найдено изображений: {foundImages}");
-                
-                if (foundImages == 0)
-                {
-                    // Добавляем тестовые изображения только если реальные не найдены
-                    Images.Add(new ImageInfo 
-                    { 
-                        FilePath = "xamarin_logo.png", 
-                        FileName = "Тестовое изображение 1 (нет реальных фото)" 
-                    });
-                    Images.Add(new ImageInfo 
-                    { 
-                        FilePath = "icon_about.png", 
-                        FileName = "Тестовое изображение 2 (нет реальных фото)" 
-                    });
-                    StatusMessage = "Реальные изображения не найдены. Показаны тестовые изображения.";
-                    System.Diagnostics.Debug.WriteLine("Реальные изображения не найдены, показаны тестовые");
-                }
             }
             catch (Exception ex)
             {
                 StatusMessage = $"Общая ошибка: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке изображений: {ex.Message}");
-                
-                // В случае ошибки показываем тестовые изображения
-                Images.Add(new ImageInfo 
-                { 
-                    FilePath = "xamarin_logo.png", 
-                    FileName = "Ошибка загрузки - тестовое изображение" 
-                });
             }
         }
 
