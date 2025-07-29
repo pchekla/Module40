@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Module40.ViewModels"
+             x:Class="Module40.Views.PinPage">
+    <ContentPage.BindingContext>
+        <vm:PinViewModel />
+    </ContentPage.BindingContext>
+    <StackLayout Padding="30" VerticalOptions="Center">
+        <Label Text="{Binding Message}" FontSize="Medium" HorizontalOptions="Center" />
+        <Entry x:Name="PinEntry" IsPassword="True" MaxLength="4" Keyboard="Numeric" Text="{Binding Pin, Mode=TwoWay}" Placeholder="{Binding Placeholder}" />
+        <Button Text="OK" Command="{Binding SubmitCommand}" />
+    </StackLayout>
+</ContentPage>

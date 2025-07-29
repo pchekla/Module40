@@ -1,6 +1,7 @@
 ﻿using System;
 using Module40.Services;
 using Module40.Views;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -14,7 +15,8 @@ namespace Module40
             InitializeComponent();
 
             DependencyService.Register<MockDataStore>();
-            MainPage = new AppShell();
+            // Проверяем, установлен ли PIN-код
+            MainPage = new NavigationPage(new PinPage());
         }
 
         protected override void OnStart()
