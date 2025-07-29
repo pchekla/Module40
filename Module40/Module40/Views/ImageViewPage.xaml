@@ -6,14 +6,8 @@
              BackgroundColor="Black">
     <ContentPage.Content>
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            
             <!-- Изображение во весь экран -->
-            <ScrollView Grid.Row="0" 
-                       HorizontalScrollBarVisibility="Never"
+            <ScrollView HorizontalScrollBarVisibility="Never"
                        VerticalScrollBarVisibility="Never">
                 <Image x:Name="FullScreenImage"
                        Source="{Binding ImagePath}"
@@ -24,33 +18,54 @@
             </ScrollView>
             
             <!-- Информационная панель внизу -->
-            <StackLayout Grid.Row="1" 
-                        BackgroundColor="#80000000"
-                        Padding="15,10"
-                        Spacing="5">
-                <Label Text="{Binding FileName}"
-                       TextColor="White"
-                       FontSize="Large"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center" />
-                <Label Text="{Binding FormattedDate}"
-                       TextColor="LightGray"
-                       FontSize="Medium"
-                       HorizontalOptions="Center" />
-            </StackLayout>
+            <Frame VerticalOptions="End"
+                   CornerRadius="20,20,0,0"
+                   HasShadow="True"
+                   Padding="25,20"
+                   Margin="0"
+                   BackgroundColor="#80000000">
+                
+                <StackLayout Spacing="10">
+                    <!-- Название файла -->
+                    <Label Text="{Binding FileName}"
+                           TextColor="White"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           LineBreakMode="TailTruncation"
+                           MaxLines="2" />
+                    
+                    <!-- Дата создания -->
+                    <StackLayout Orientation="Horizontal" 
+                                HorizontalOptions="Center"
+                                Spacing="10">
+                        <Label Text="📅"
+                               FontSize="16"
+                               TextColor="White" />
+                        <Label Text="{Binding FormattedDate}"
+                               TextColor="LightGray"
+                               FontSize="16" />
+                    </StackLayout>
+                </StackLayout>
+            </Frame>
             
             <!-- Кнопка закрытия -->
-            <Button Grid.Row="0"
-                    Text="✕"
-                    FontSize="24"
-                    TextColor="White"
-                    BackgroundColor="Transparent"
-                    HorizontalOptions="End"
-                    VerticalOptions="Start"
-                    Margin="15"
-                    HeightRequest="50"
-                    WidthRequest="50"
-                    Command="{Binding CloseCommand}" />
+            <Frame BackgroundColor="#80000000"
+                   WidthRequest="50"
+                   HeightRequest="50"
+                   CornerRadius="25"
+                   HasShadow="True"
+                   HorizontalOptions="End"
+                   VerticalOptions="Start"
+                   Margin="20"
+                   Padding="0">
+                <Button Text="✕"
+                        FontSize="20"
+                        TextColor="White"
+                        BackgroundColor="Transparent"
+                        Command="{Binding CloseCommand}"
+                        CornerRadius="25" />
+            </Frame>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

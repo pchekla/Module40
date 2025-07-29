@@ -2,16 +2,85 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Module40.ViewModels"
-             x:Class="Module40.Views.PinPage">
+             x:Class="Module40.Views.PinPage"
+             BackgroundColor="#667eea">
     <ContentPage.BindingContext>
         <vm:PinViewModel />
     </ContentPage.BindingContext>
-    <StackLayout Padding="30" VerticalOptions="Center">
-        <Label Text="{Binding Message}" 
-               TextColor="{Binding MessageColor}"
-               FontSize="Medium" 
-               HorizontalOptions="Center" />
-        <Entry x:Name="PinEntry" IsPassword="True" MaxLength="4" Keyboard="Numeric" Text="{Binding Pin, Mode=TwoWay}" Placeholder="{Binding Placeholder}" />
-        <Button Text="OK" Command="{Binding SubmitCommand}" />
-    </StackLayout>
+    
+    <ContentPage.Content>
+        <StackLayout VerticalOptions="Center" Spacing="30" Margin="40">
+            
+            <!-- Иконка приложения -->
+            <Frame BackgroundColor="White" 
+                   WidthRequest="100" 
+                   HeightRequest="100" 
+                   CornerRadius="50" 
+                   HasShadow="True"
+                   HorizontalOptions="Center">
+                <Label Text="🔒" 
+                       FontSize="50"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Frame>
+            
+            <!-- Заголовок -->
+            <Label Text="Защита приложения"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center" />
+            
+            <!-- Сообщение -->
+            <Label Text="{Binding Message}" 
+                   TextColor="{Binding MessageColor}"
+                   FontSize="18"
+                   FontAttributes="Italic"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center" />
+            
+            <!-- Контейнер для ввода PIN-кода -->
+            <Frame BackgroundColor="White"
+                   CornerRadius="25"
+                   HasShadow="True"
+                   Padding="30"
+                   Margin="20,0">
+                <StackLayout Spacing="20">
+                    
+                    <!-- Поле ввода PIN-кода -->
+                    <Entry x:Name="PinEntry" 
+                           IsPassword="True" 
+                           MaxLength="4" 
+                           Keyboard="Numeric" 
+                           Text="{Binding Pin, Mode=TwoWay}" 
+                           Placeholder="{Binding Placeholder}"
+                           FontSize="20"
+                           HorizontalTextAlignment="Center"
+                           BackgroundColor="Transparent" />
+                    
+                    <!-- Разделительная линия -->
+                    <BoxView BackgroundColor="#E0E0E0" HeightRequest="1" />
+                    
+                    <!-- Кнопка подтверждения -->
+                    <Button Text="ПОДТВЕРДИТЬ" 
+                            Command="{Binding SubmitCommand}"
+                            CornerRadius="20"
+                            HeightRequest="50"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            BackgroundColor="#667eea" />
+                    
+                </StackLayout>
+            </Frame>
+            
+            <!-- Дополнительная информация -->
+            <Label Text="PIN-код должен содержать 4 цифры"
+                   FontSize="14"
+                   TextColor="White"
+                   Opacity="0.8"
+                   HorizontalOptions="Center" />
+            
+        </StackLayout>
+    </ContentPage.Content>
 </ContentPage>

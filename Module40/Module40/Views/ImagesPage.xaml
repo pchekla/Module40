@@ -4,7 +4,8 @@
              xmlns:vm="clr-namespace:Module40.ViewModels"
              xmlns:converters="clr-namespace:Module40.Converters"
              x:Class="Module40.Views.ImagesPage"
-             Title="Галерея изображений">
+             Title="Галерея изображений"
+             BackgroundColor="#F5F7FA">
     <ContentPage.BindingContext>
         <vm:ImagesViewModel />
     </ContentPage.BindingContext>
@@ -13,6 +14,7 @@
             <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
+    
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
@@ -21,169 +23,272 @@
             </Grid.RowDefinitions>
             
             <!-- Основное содержимое -->
-            <Grid Grid.Row="0">
-                <!-- Индикатор загрузки -->
-                <StackLayout IsVisible="{Binding IsLoading}" VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
-                    <ActivityIndicator IsRunning="{Binding IsLoading}" Color="Blue" />
-                    <Label Text="{Binding StatusMessage}" HorizontalOptions="Center" FontSize="Medium" />
-                </StackLayout>
-                
-                <!-- Основной интерфейс -->
-                <StackLayout IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
-                    <!-- Сообщение о статусе -->
-                    <Label Text="{Binding StatusMessage}" 
-                           HorizontalOptions="Center" 
-                           Margin="10"
-                           FontSize="Small"
-                           TextColor="Gray" />
+            <ScrollView Grid.Row="0">
+                <StackLayout>
+                    
+                    <!-- Заголовок -->
+                    <Frame Margin="15,10,15,0" 
+                           CornerRadius="15" 
+                           HasShadow="True" 
+                           BackgroundColor="#667eea"
+                           Padding="20">
+                        <StackLayout Spacing="5">
+                            <Label Text="📱 Моя галерея"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding StatusMessage}" 
+                                   FontSize="14"
+                                   TextColor="White"
+                                   Opacity="0.9"
+                                   HorizontalOptions="Center" />
+                        </StackLayout>
+                    </Frame>
+                    
+                    <!-- Индикатор загрузки -->
+                    <StackLayout IsVisible="{Binding IsLoading}" 
+                                VerticalOptions="Center" 
+                                HorizontalOptions="Center" 
+                                Spacing="20"
+                                Margin="40">
+                        <Frame BackgroundColor="White" 
+                               CornerRadius="20" 
+                               HasShadow="True" 
+                               Padding="40">
+                            <StackLayout Spacing="20">
+                                <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                                                 Color="#667eea"
+                                                 Scale="1.5" />
+                                <Label Text="{Binding StatusMessage}" 
+                                       HorizontalOptions="Center" 
+                                       FontSize="16"
+                                       TextColor="#333" />
+                            </StackLayout>
+                        </Frame>
+                    </StackLayout>
                     
                     <!-- Запрос разрешений -->
-                    <StackLayout IsVisible="{Binding PermissionDenied}">
-                        <Label Text="Для отображения изображений необходимо разрешение на чтение файлов." 
-                               HorizontalOptions="Center" 
-                               VerticalOptions="CenterAndExpand"
-                               Margin="20"
-                               FontSize="Medium"
-                               TextColor="Red"/>
-                        <Button Text="Запросить разрешение" 
-                                Command="{Binding RequestPermissionCommand}"
-                                BackgroundColor="Blue"
-                                TextColor="White"
-                                Margin="20,10" />
+                    <StackLayout IsVisible="{Binding PermissionDenied}" 
+                                Margin="20">
+                        <Frame BackgroundColor="White" 
+                               CornerRadius="15" 
+                               HasShadow="True" 
+                               Padding="30">
+                            <StackLayout Spacing="20">
+                                <Label Text="🔐" 
+                                       FontSize="48" 
+                                       HorizontalOptions="Center" />
+                                <Label Text="Нужны разрешения" 
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       TextColor="#333"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Для отображения изображений необходимо разрешение на чтение файлов." 
+                                       FontSize="16"
+                                       TextColor="#666"
+                                       HorizontalTextAlignment="Center"
+                                       Margin="0,0,0,10" />
+                                <Button Text="ЗАПРОСИТЬ РАЗРЕШЕНИЕ" 
+                                        Command="{Binding RequestPermissionCommand}"
+                                        CornerRadius="25"
+                                        HeightRequest="50"
+                                        FontAttributes="Bold"
+                                        TextColor="White"
+                                        BackgroundColor="#4facfe" />
+                            </StackLayout>
+                        </Frame>
                     </StackLayout>
                     
                     <!-- Открытие настроек -->
-                    <StackLayout IsVisible="{Binding ShowOpenSettings}">
-                        <Label Text="Вы запретили приложению доступ к файлам. Откройте настройки и разрешите доступ вручную." 
-                               HorizontalOptions="Center" 
-                               VerticalOptions="CenterAndExpand"
-                               Margin="20"
-                               FontSize="Medium"
-                               TextColor="Orange"/>
-                        <Button Text="Открыть настройки" 
-                                Command="{Binding OpenSettingsCommand}"
-                                BackgroundColor="Orange"
-                                TextColor="White"
-                                Margin="20,10" />
+                    <StackLayout IsVisible="{Binding ShowOpenSettings}" 
+                                Margin="20">
+                        <Frame BackgroundColor="White" 
+                               CornerRadius="15" 
+                               HasShadow="True" 
+                               Padding="30">
+                            <StackLayout Spacing="20">
+                                <Label Text="⚙️" 
+                                       FontSize="48" 
+                                       HorizontalOptions="Center" />
+                                <Label Text="Откройте настройки" 
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       TextColor="#333"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Вы запретили п��иложению доступ к файлам. Откройте настр��йки и разрешите доступ вручную." 
+                                       FontSize="16"
+                                       TextColor="#666"
+                                       HorizontalTextAlignment="Center"
+                                       Margin="0,0,0,10" />
+                                <Button Text="ОТКРЫТЬ НАСТРОЙКИ" 
+                                        Command="{Binding OpenSettingsCommand}"
+                                        CornerRadius="25"
+                                        HeightRequest="50"
+                                        FontAttributes="Bold"
+                                        TextColor="White"
+                                        BackgroundColor="#fa709a" />
+                            </StackLayout>
+                        </Frame>
                     </StackLayout>
                     
                     <!-- Список изображений -->
-                    <CollectionView x:Name="ImagesCollectionView"
-                                   ItemsSource="{Binding Images}" 
-                                   IsVisible="{Binding PermissionDenied, Converter={StaticResource InverseBoolConverter}}"
-                                   BackgroundColor="White">
-                        <CollectionView.EmptyView>
-                            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Margin="50">
-                                <Label Text="📷" FontSize="48" HorizontalOptions="Center" />
-                                <Label Text="Изображения не найдены" 
-                                       HorizontalOptions="Center" 
-                                       FontSize="Large"
-                                       TextColor="Gray" />
-                                <Label Text="Проверьте, есть ли фотографии в папке Pictures" 
-                                       HorizontalOptions="Center" 
-                                       FontSize="Medium"
-                                       TextColor="LightGray"
-                                       Margin="0,10" />
-                            </StackLayout>
-                        </CollectionView.EmptyView>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Padding="10">
-                                    <!-- Рамка для выделения выбранного изображения -->
-                                    <Frame BackgroundColor="{Binding IsSelected, Converter={StaticResource InverseBoolConverter}}" 
-                                           BorderColor="{Binding IsSelected, Converter={StaticResource InverseBoolConverter}}"
-                                           Padding="5" 
-                                           CornerRadius="10"
-                                           HasShadow="True">
+                    <StackLayout IsVisible="{Binding PermissionDenied, Converter={StaticResource InverseBoolConverter}}"
+                                Margin="10,0"
+                                Spacing="20">
+                        
+                        <!-- Пустое состояние -->
+                        <StackLayout IsVisible="{Binding HasImages, Converter={StaticResource InverseBoolConverter}}"
+                                    VerticalOptions="Center" 
+                                    HorizontalOptions="Center" 
+                                    Margin="40">
+                            <Frame BackgroundColor="White" 
+                                   CornerRadius="20" 
+                                   HasShadow="True" 
+                                   Padding="40">
+                                <StackLayout Spacing="20">
+                                    <Label Text="📷" FontSize="64" HorizontalOptions="Center" />
+                                    <Label Text="Изображения не найдены" 
+                                           HorizontalOptions="Center" 
+                                           FontSize="20"
+                                           FontAttributes="Bold"
+                                           TextColor="#333" />
+                                    <Label Text="Проверьте, есть ли фотографии в папке Pictures" 
+                                           HorizontalOptions="Center" 
+                                           FontSize="16"
+                                           TextColor="#666"
+                                           HorizontalTextAlignment="Center" />
+                                </StackLayout>
+                            </Frame>
+                        </StackLayout>
+                        
+                        <!-- Сетка изображений -->
+                        <StackLayout BindableLayout.ItemsSource="{Binding Images}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame Margin="8" 
+                                           CornerRadius="15" 
+                                           HasShadow="True" 
+                                           Padding="5"
+                                           BackgroundColor="{Binding IsSelected, Converter={StaticResource InverseBoolConverter}}">
                                         <Frame.Triggers>
                                             <DataTrigger TargetType="Frame" Binding="{Binding IsSelected}" Value="True">
-                                                <Setter Property="BackgroundColor" Value="LightBlue" />
-                                                <Setter Property="BorderColor" Value="Blue" />
+                                                <Setter Property="BackgroundColor" Value="#E3F2FD" />
                                             </DataTrigger>
                                             <DataTrigger TargetType="Frame" Binding="{Binding IsSelected}" Value="False">
-                                                <Setter Property="BackgroundColor" Value="LightGray" />
-                                                <Setter Property="BorderColor" Value="Gray" />
+                                                <Setter Property="BackgroundColor" Value="White" />
                                             </DataTrigger>
                                         </Frame.Triggers>
                                         
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="*" />
-                                            </Grid.RowDefinitions>
-                                            
+                                        <StackLayout>
                                             <!-- Изображение -->
-                                            <Image Grid.Row="0"
-                                                   Source="{Binding FilePath}" 
-                                                   HeightRequest="120" 
-                                                   WidthRequest="120"
-                                                   Aspect="AspectFill" 
-                                                   HorizontalOptions="Center">
-                                                <Image.GestureRecognizers>
-                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ImagesViewModel}}, Path=SelectImageCommand}"
-                                                                          CommandParameter="{Binding .}" />
-                                                </Image.GestureRecognizers>
-                                            </Image>
+                                            <Grid>
+                                                <Image Source="{Binding FilePath}" 
+                                                       HeightRequest="120" 
+                                                       Aspect="AspectFill"
+                                                       BackgroundColor="#F0F0F0">
+                                                    <Image.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ImagesViewModel}}, Path=SelectImageCommand}"
+                                                                              CommandParameter="{Binding .}" />
+                                                    </Image.GestureRecognizers>
+                                                </Image>
+                                                
+                                                <!-- Индикатор выбора -->
+                                                <Frame IsVisible="{Binding IsSelected}"
+                                                       BackgroundColor="#667eea"
+                                                       WidthRequest="25"
+                                                       HeightRequest="25"
+                                                       CornerRadius="12"
+                                                       HasShadow="True"
+                                                       HorizontalOptions="End"
+                                                       VerticalOptions="Start"
+                                                       Margin="5"
+                                                       Padding="0">
+                                                    <Label Text="✓" 
+                                                           FontSize="14"
+                                                           TextColor="White"
+                                                           FontAttributes="Bold"
+                                                           HorizontalOptions="Center"
+                                                           VerticalOptions="Center" />
+                                                </Frame>
+                                            </Grid>
                                             
-                                            <!-- Имя файла -->
-                                            <Label Grid.Row="1" 
-                                                   Text="{Binding FileName}" 
-                                                   HorizontalOptions="Center" 
-                                                   FontSize="Small"
-                                                   FontAttributes="Bold"
-                                                   TextColor="Black"
-                                                   LineBreakMode="TailTruncation"
-                                                   MaxLines="2"
-                                                   Margin="0,5" />
-                                            
-                                            <!-- Индикатор выбора -->
-                                            <Label Grid.Row="0"
-                                                   Text="✓" 
-                                                   FontSize="24"
-                                                   TextColor="Blue"
-                                                   BackgroundColor="White"
-                                                   HorizontalOptions="End"
-                                                   VerticalOptions="Start"
-                                                   Margin="5"
-                                                   IsVisible="{Binding IsSelected}" />
-                                        </Grid>
+                                            <!-- Информация о файле -->
+                                            <StackLayout Padding="10" Spacing="5">
+                                                <Label Text="{Binding FileName}" 
+                                                       FontSize="14"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#333"
+                                                       LineBreakMode="TailTruncation"
+                                                       MaxLines="1" />
+                                                <Label Text="{Binding FormattedDate}" 
+                                                       FontSize="12"
+                                                       TextColor="#666" />
+                                            </StackLayout>
+                                        </StackLayout>
                                     </Frame>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                        <CollectionView.ItemsLayout>
-                            <GridItemsLayout Orientation="Vertical" 
-                                            Span="2" 
-                                            HorizontalItemSpacing="10" 
-                                            VerticalItemSpacing="15" />
-                        </CollectionView.ItemsLayout>
-                    </CollectionView>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </StackLayout>
+                    </StackLayout>
                 </StackLayout>
-            </Grid>
+            </ScrollView>
             
             <!-- Панель с кнопками внизу -->
-            <StackLayout Grid.Row="1" 
-                         Orientation="Horizontal" 
-                         HorizontalOptions="FillAndExpand"
-                         BackgroundColor="LightGray"
-                         Padding="15,10"
-                         IsVisible="{Binding PermissionDenied, Converter={StaticResource InverseBoolConverter}}">
+            <Frame Grid.Row="1" 
+                   CornerRadius="20,20,0,0"
+                   HasShadow="True"
+                   Padding="20,15"
+                   Margin="0"
+                   BackgroundColor="#667eea"
+                   IsVisible="{Binding PermissionDenied, Converter={StaticResource InverseBoolConverter}}">
                 
-                <!-- Кнопки управления -->
-                <Button Text="Открыть" 
-                        Command="{Binding OpenSelectedImageCommand}"
-                        BackgroundColor="Green"
-                        TextColor="White"
-                        HorizontalOptions="FillAndExpand"
-                        Margin="0,0,5,0" />
-                
-                <Button Text="Удалить" 
-                        Command="{Binding DeleteSelectedImagesCommand}"
-                        BackgroundColor="Red"
-                        TextColor="White"
-                        HorizontalOptions="FillAndExpand"
-                        Margin="5,0,0,0" />
-            </StackLayout>
+                <StackLayout Orientation="Horizontal" Spacing="15">
+                    
+                    <!-- Кнопка "Открыть" -->
+                    <Button Text="🔍 ОТКРЫТЬ" 
+                            Command="{Binding OpenSelectedImageCommand}"
+                            CornerRadius="20"
+                            HeightRequest="50"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            BackgroundColor="White"
+                            HorizontalOptions="FillAndExpand"
+                            IsEnabled="{Binding CanOpenSelectedImageProperty}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" 
+                                        Binding="{Binding CanOpenSelectedImageProperty}" 
+                                        Value="False">
+                                <Setter Property="BackgroundColor" Value="#667eea" />
+                                <Setter Property="TextColor" Value="White" />
+                                <Setter Property="Opacity" Value="0.7" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    
+                    <!-- Кнопка "Удалить" -->
+                    <Button Text="🗑️ УДАЛИТЬ" 
+                            Command="{Binding DeleteSelectedImagesCommand}"
+                            CornerRadius="20"
+                            HeightRequest="50"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            BackgroundColor="#E74C3C"
+                            HorizontalOptions="FillAndExpand"
+                            IsEnabled="{Binding CanDeleteSelectedImagesProperty}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" 
+                                        Binding="{Binding CanDeleteSelectedImagesProperty}" 
+                                        Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    
+                </StackLayout>
+            </Frame>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

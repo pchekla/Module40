@@ -91,6 +91,39 @@ namespace Module40.ViewModels
             } 
         }
 
+        private bool _canOpenSelectedImage;
+        public bool CanOpenSelectedImageProperty 
+        { 
+            get => _canOpenSelectedImage; 
+            set 
+            { 
+                _canOpenSelectedImage = value; 
+                OnPropertyChanged(); 
+            } 
+        }
+
+        private bool _canDeleteSelectedImages;
+        public bool CanDeleteSelectedImagesProperty 
+        { 
+            get => _canDeleteSelectedImages; 
+            set 
+            { 
+                _canDeleteSelectedImages = value; 
+                OnPropertyChanged(); 
+            } 
+        }
+
+        private bool _hasImages;
+        public bool HasImages
+        {
+            get => _hasImages;
+            set
+            {
+                _hasImages = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool PermissionDenied { get; set; }
         public Command RequestPermissionCommand { get; set; }
         public bool ShowOpenSettings { get; set; }
@@ -102,6 +135,12 @@ namespace Module40.ViewModels
         public ImagesViewModel()
         {
             Images = new ObservableCollection<ImageInfo>();
+            // Подписываемся на изменения коллекции
+            Images.CollectionChanged += (s, e) => 
+            {
+                HasImages = Images.Count > 0;
+            };
+            
             RequestPermissionCommand = new Command(RequestPermission);
             OpenSettingsCommand = new Command(OpenSettings);
             SelectImageCommand = new Command<ImageInfo>(OnSelectImage);
@@ -127,11 +166,11 @@ namespace Module40.ViewModels
             
             HasSelectedImages = selectedCount > 0;
             
-            // Кнопка "Открыть" активна только при выборе одного изображения
-            var canOpen = selectedCount == 1;
-            // Кнопка "Удалить" активна при выборе одного или нескольких изображений
-            var canDelete = selectedCount > 0;
+            // Обновляем свойства для состояния кнопок
+            CanOpenSelectedImageProperty = selectedCount == 1;
+            CanDeleteSelectedImagesProperty = selectedCount > 0;
             
+            // Уведомляем команды об изменении состояния
             ((Command)OpenSelectedImageCommand).ChangeCanExecute();
             ((Command)DeleteSelectedImagesCommand).ChangeCanExecute();
         }
@@ -323,7 +362,7 @@ namespace Module40.ViewModels
                 PermissionDenied = true;
                 ShowOpenSettings = !permissionService.CanRequestPermission();
                 StatusMessage = "Разрешение не получено";
-                MessagingCenter.Send(this, PermissionDeniedAlert, "Для отображения изображений необходимо разрешение на чтение хранилища.");
+                MessagingCenter.Send(this, PermissionDeniedAlert, "Для отображения изображений н��обходимо разрешение на чтение хранилища.");
             }
             
             IsLoading = false;
