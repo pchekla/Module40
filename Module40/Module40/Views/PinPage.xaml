@@ -7,7 +7,10 @@
         <vm:PinViewModel />
     </ContentPage.BindingContext>
     <StackLayout Padding="30" VerticalOptions="Center">
-        <Label Text="{Binding Message}" FontSize="Medium" HorizontalOptions="Center" />
+        <Label Text="{Binding Message}" 
+               TextColor="{Binding MessageColor}"
+               FontSize="Medium" 
+               HorizontalOptions="Center" />
         <Entry x:Name="PinEntry" IsPassword="True" MaxLength="4" Keyboard="Numeric" Text="{Binding Pin, Mode=TwoWay}" Placeholder="{Binding Placeholder}" />
         <Button Text="OK" Command="{Binding SubmitCommand}" />
     </StackLayout>

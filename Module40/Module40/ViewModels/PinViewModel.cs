@@ -12,6 +12,7 @@ namespace Module40.ViewModels
         private string _pin;
         private string _message;
         private string _placeholder;
+        private Color _messageColor = Color.Black;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string Pin
@@ -30,6 +31,12 @@ namespace Module40.ViewModels
         {
             get => _placeholder;
             set { _placeholder = value; OnPropertyChanged(); }
+        }
+
+        public Color MessageColor
+        {
+            get => _messageColor;
+            set { _messageColor = value; OnPropertyChanged(); }
         }
 
         public ICommand SubmitCommand { get; }
@@ -55,6 +62,9 @@ namespace Module40.ViewModels
                 Placeholder = "Установите PIN-код";
             }
             
+            // Сбрасываем цвет на черный при обновлении состояния
+            MessageColor = Color.Black;
+            
             // Очищаем поле ввода
             Pin = string.Empty;
         }
@@ -71,6 +81,7 @@ namespace Module40.ViewModels
                 else
                 {
                     Message = "PIN-код должен содержать 4 цифры";
+                    MessageColor = Color.Red;
                 }
             }
             else
@@ -83,6 +94,7 @@ namespace Module40.ViewModels
                 else
                 {
                     Message = "Неверный PIN-код";
+                    MessageColor = Color.Red;
                 }
             }
             Pin = string.Empty;
