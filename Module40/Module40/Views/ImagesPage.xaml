@@ -68,7 +68,8 @@
                     </StackLayout>
                     
                     <!-- Список изображений -->
-                    <CollectionView ItemsSource="{Binding Images}" 
+                    <CollectionView x:Name="ImagesCollectionView"
+                                   ItemsSource="{Binding Images}" 
                                    IsVisible="{Binding PermissionDenied, Converter={StaticResource InverseBoolConverter}}"
                                    BackgroundColor="White">
                         <CollectionView.EmptyView>
@@ -168,21 +169,20 @@
                          Padding="15,10"
                          IsVisible="{Binding PermissionDenied, Converter={StaticResource InverseBoolConverter}}">
                 
+                <!-- Кнопки управления -->
                 <Button Text="Открыть" 
                         Command="{Binding OpenSelectedImageCommand}"
                         BackgroundColor="Green"
                         TextColor="White"
                         HorizontalOptions="FillAndExpand"
-                        Margin="0,0,5,0"
-                        IsEnabled="{Binding HasSelectedImages}" />
+                        Margin="0,0,5,0" />
                 
                 <Button Text="Удалить" 
                         Command="{Binding DeleteSelectedImagesCommand}"
                         BackgroundColor="Red"
                         TextColor="White"
                         HorizontalOptions="FillAndExpand"
-                        Margin="5,0,0,0"
-                        IsEnabled="{Binding HasSelectedImages}" />
+                        Margin="5,0,0,0" />
             </StackLayout>
         </Grid>
     </ContentPage.Content>

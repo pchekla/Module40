@@ -105,8 +105,8 @@ namespace Module40.ViewModels
             RequestPermissionCommand = new Command(RequestPermission);
             OpenSettingsCommand = new Command(OpenSettings);
             SelectImageCommand = new Command<ImageInfo>(OnSelectImage);
-            OpenSelectedImageCommand = new Command(OnOpenSelectedImage, () => HasSelectedImages);
-            DeleteSelectedImagesCommand = new Command(OnDeleteSelectedImages, () => HasSelectedImages);
+            OpenSelectedImageCommand = new Command(OnOpenSelectedImage, CanOpenSelectedImage);
+            DeleteSelectedImagesCommand = new Command(OnDeleteSelectedImages, CanDeleteSelectedImages);
             RequestPermissionAndLoadImages();
         }
 
@@ -114,14 +114,7 @@ namespace Module40.ViewModels
         {
             if (imageInfo == null) return;
 
-            // Снимаем выделение с других изображений (одиночный выбор)
-            foreach (var img in Images)
-            {
-                if (img != imageInfo)
-                    img.IsSelected = false;
-            }
-
-            // Переключаем выделение текущего изображения
+            // Переключаем выделение текущего изображения (множественный выбор)
             imageInfo.IsSelected = !imageInfo.IsSelected;
             
             UpdateSelectionState();
@@ -129,9 +122,28 @@ namespace Module40.ViewModels
 
         private void UpdateSelectionState()
         {
-            HasSelectedImages = Images.Any(i => i.IsSelected);
+            var selectedImages = Images.Where(i => i.IsSelected).ToList();
+            var selectedCount = selectedImages.Count;
+            
+            HasSelectedImages = selectedCount > 0;
+            
+            // Кнопка "Открыть" активна только при выборе одного изображения
+            var canOpen = selectedCount == 1;
+            // Кнопка "Удалить" активна при выборе одного или нескольких изображений
+            var canDelete = selectedCount > 0;
+            
             ((Command)OpenSelectedImageCommand).ChangeCanExecute();
             ((Command)DeleteSelectedImagesCommand).ChangeCanExecute();
+        }
+
+        private bool CanOpenSelectedImage()
+        {
+            return Images.Count(i => i.IsSelected) == 1;
+        }
+
+        private bool CanDeleteSelectedImages()
+        {
+            return Images.Any(i => i.IsSelected);
         }
 
         private async void OnOpenSelectedImage()
@@ -185,9 +197,27 @@ namespace Module40.ViewModels
             }
 
             var imagesToDelete = selectedImages.Count;
+            
+            // Формируем сообщение с списком файлов для удаления
+            string confirmationMessage;
+            if (imagesToDelete == 1)
+            {
+                confirmationMessage = $"Вы действительно хотите удалить изображение?\n\n• {selectedImages[0].FileName}\n\nФайл будет удален навсегда.";
+            }
+            else
+            {
+                var filesList = string.Join("\n", selectedImages.Take(5).Select(img => $"• {img.FileName}"));
+                if (imagesToDelete > 5)
+                {
+                    filesList += $"\n• ... и еще {imagesToDelete - 5} файлов";
+                }
+                
+                confirmationMessage = $"Вы действительно хотите удалить {imagesToDelete} изображений?\n\n{filesList}\n\nФайлы будут удалены навсегда.";
+            }
+            
             var result = await Application.Current.MainPage.DisplayAlert(
                 "Подтверждение удаления",
-                $"Вы действительно хотите удалить {imagesToDelete} изображений? Файлы будут удалены навсегда.",
+                confirmationMessage,
                 "Удалить", "Отмена");
 
             if (result)
