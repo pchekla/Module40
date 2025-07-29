@@ -39,6 +39,11 @@ namespace Module40.ViewModels
         public PinViewModel()
         {
             SubmitCommand = new Command(OnSubmit);
+            RefreshState();
+        }
+
+        public void RefreshState()
+        {
             if (IsPinSet)
             {
                 Message = "Введите PIN-код";
@@ -49,6 +54,9 @@ namespace Module40.ViewModels
                 Message = "Установите PIN-код";
                 Placeholder = "Установите PIN-код";
             }
+            
+            // Очищаем поле ввода
+            Pin = string.Empty;
         }
 
         private async void OnSubmit()
@@ -86,4 +94,3 @@ namespace Module40.ViewModels
         }
     }
 }
-
