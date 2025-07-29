@@ -1,10 +1,8 @@
-﻿using System.ComponentModel;
-using Module40.ViewModels;
-using Xamarin.Forms;
+﻿using Module40.ViewModels;
 
 namespace Module40.Views
 {
-    public partial class ItemDetailPage : ContentPage
+    public partial class ItemDetailPage
     {
         public ItemDetailPage()
         {

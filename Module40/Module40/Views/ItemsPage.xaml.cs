@@ -12,7 +12,7 @@ using Xamarin.Forms.Xaml;
 
 namespace Module40.Views
 {
-    public partial class ItemsPage : ContentPage
+    public partial class ItemsPage
     {
         ItemsViewModel _viewModel;
 

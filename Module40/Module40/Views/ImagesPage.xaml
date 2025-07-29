@@ -2,16 +2,123 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Module40.ViewModels"
-             x:Class="Module40.Views.ImagesPage">
+             xmlns:converters="clr-namespace:Module40.Converters"
+             x:Class="Module40.Views.ImagesPage"
+             Title="Галерея изображений">
     <ContentPage.BindingContext>
         <vm:ImagesViewModel />
     </ContentPage.BindingContext>
-    <CollectionView ItemsSource="{Binding Images}">
-        <CollectionView.ItemTemplate>
-            <DataTemplate>
-                <Image Source="{Binding .}" HeightRequest="150" WidthRequest="150" Margin="10" />
-            </DataTemplate>
-        </CollectionView.ItemTemplate>
-    </CollectionView>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <Grid>
+            <!-- Индикатор загрузки -->
+            <StackLayout IsVisible="{Binding IsLoading}" VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
+                <ActivityIndicator IsRunning="{Binding IsLoading}" Color="Blue" />
+                <Label Text="{Binding StatusMessage}" HorizontalOptions="Center" FontSize="Medium" />
+            </StackLayout>
+            
+            <!-- Основной интерфейс -->
+            <StackLayout IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                <!-- Сообщение о статусе -->
+                <Label Text="{Binding StatusMessage}" 
+                       HorizontalOptions="Center" 
+                       Margin="10"
+                       FontSize="Small"
+                       TextColor="Gray" />
+                
+                <!-- Запрос разрешений -->
+                <StackLayout IsVisible="{Binding PermissionDenied}">
+                    <Label Text="Для отображения изображений необходимо разрешение на чтение файлов." 
+                           HorizontalOptions="Center" 
+                           VerticalOptions="CenterAndExpand"
+                           Margin="20"
+                           FontSize="Medium"
+                           TextColor="Red"/>
+                    <Button Text="Запросить разрешение" 
+                            Command="{Binding RequestPermissionCommand}"
+                            BackgroundColor="Blue"
+                            TextColor="White"
+                            Margin="20,10" />
+                </StackLayout>
+                
+                <!-- Открытие настроек -->
+                <StackLayout IsVisible="{Binding ShowOpenSettings}">
+                    <Label Text="Вы запретили приложению доступ к файлам. Откройте настройки и разрешите доступ вручную." 
+                           HorizontalOptions="Center" 
+                           VerticalOptions="CenterAndExpand"
+                           Margin="20"
+                           FontSize="Medium"
+                           TextColor="Orange"/>
+                    <Button Text="Открыть настройки" 
+                            Command="{Binding OpenSettingsCommand}"
+                            BackgroundColor="Orange"
+                            TextColor="White"
+                            Margin="20,10" />
+                </StackLayout>
+                
+                <!-- Список изображений -->
+                <CollectionView ItemsSource="{Binding Images}" 
+                               IsVisible="{Binding PermissionDenied, Converter={StaticResource InverseBoolConverter}}"
+                               BackgroundColor="White">
+                    <CollectionView.EmptyView>
+                        <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Margin="50">
+                            <Label Text="📷" FontSize="48" HorizontalOptions="Center" />
+                            <Label Text="Изображения не найдены" 
+                                   HorizontalOptions="Center" 
+                                   FontSize="Large"
+                                   TextColor="Gray" />
+                            <Label Text="Проверьте, есть ли фотографии в папке DCIM/Camera" 
+                                   HorizontalOptions="Center" 
+                                   FontSize="Medium"
+                                   TextColor="LightGray"
+                                   Margin="0,10" />
+                        </StackLayout>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="15" RowSpacing="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                
+                                <!-- Изображение -->
+                                <Frame Grid.Row="0" 
+                                       BackgroundColor="LightGray" 
+                                       Padding="5" 
+                                       CornerRadius="10"
+                                       HasShadow="True">
+                                    <Image Source="{Binding FilePath}" 
+                                           HeightRequest="120" 
+                                           WidthRequest="120"
+                                           Aspect="AspectFill" 
+                                           HorizontalOptions="Center" />
+                                </Frame>
+                                
+                                <!-- Имя файла -->
+                                <Label Grid.Row="1" 
+                                       Text="{Binding FileName}" 
+                                       HorizontalOptions="Center" 
+                                       FontSize="Medium"
+                                       FontAttributes="Bold"
+                                       TextColor="Black"
+                                       LineBreakMode="TailTruncation"
+                                       MaxLines="2" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" 
+                                        Span="2" 
+                                        HorizontalItemSpacing="10" 
+                                        VerticalItemSpacing="15" />
+                    </CollectionView.ItemsLayout>
+                </CollectionView>
+            </StackLayout>
+        </Grid>
+    </ContentPage.Content>
 </ContentPage>
-
