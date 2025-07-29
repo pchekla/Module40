@@ -1,9 +1,5 @@
-﻿using System;
-using Module40.Services;
-using Module40.Views;
-using Xamarin.Essentials;
+﻿using Module40.Views;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace Module40
 {
@@ -14,7 +10,6 @@ namespace Module40
         {
             InitializeComponent();
 
-            DependencyService.Register<MockDataStore>();
             // Проверяем, установлен ли PIN-код
             MainPage = new NavigationPage(new PinPage());
         }

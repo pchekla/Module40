@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Module40.Services;
-using Xamarin.Essentials;
 using Xamarin.Forms;
 using System.Linq;
 using System.Collections.Generic;
